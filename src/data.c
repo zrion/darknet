@@ -1314,7 +1314,7 @@ void blend_images(image new_img, float alpha, image old_img, float beta)
 }
 
 data load_data_detection(int n, char **paths, int m, int w, int h, int c, int boxes, int classes, int use_flip, int gaussian_noise, int use_blur, int use_mixup,
-    float jitter, float resize, float hue, float saturation, float exposure, int mini_batch, int track, int augment_speed, int letter_box, int show_imgs)
+    float jitter, float resize, float hue, float saturation, float exposure, int mini_batch, int track, int augment_speed, int letter_box, int show_imgs, int numpy_data)
 {
     const int random_index = random_gen();
     c = c ? c : 3;
@@ -1360,6 +1360,7 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int c, int bo
             float *truth = (float*)xcalloc(5 * boxes, sizeof(float));
             char *filename = (i_mixup) ? mixup_random_paths[i] : random_paths[i];
 
+            // WRIST: !TODO load numpy binary file
             image orig = load_image(filename, 0, 0, c);
 
             int oh = orig.h;
@@ -1453,7 +1454,7 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int c, int bo
 
             image sized = resize_image(cropped, w, h);
             if (flip) flip_image(sized);
-            distort_image(sized, dhue, dsat, dexp);
+            if (!numpy_data) distort_image(sized, dhue, dsat, dexp);  // Don't do distortion with custom data
             //random_distort_image(sized, hue, saturation, exposure);
 
             fill_truth_detection(filename, boxes, truth, classes, flip, dx, dy, 1. / sx, 1. / sy, w, h);
@@ -1529,7 +1530,7 @@ void *load_thread(void *ptr)
         *a.d = load_data_region(a.n, a.paths, a.m, a.w, a.h, a.num_boxes, a.classes, a.jitter, a.hue, a.saturation, a.exposure);
     } else if (a.type == DETECTION_DATA){
         *a.d = load_data_detection(a.n, a.paths, a.m, a.w, a.h, a.c, a.num_boxes, a.classes, a.flip, a.gaussian_noise, a.blur, a.mixup, a.jitter, a.resize,
-            a.hue, a.saturation, a.exposure, a.mini_batch, a.track, a.augment_speed, a.letter_box, a.show_imgs);
+            a.hue, a.saturation, a.exposure, a.mini_batch, a.track, a.augment_speed, a.letter_box, a.show_imgs, a.numpy_data);
     } else if (a.type == SWAG_DATA){
         *a.d = load_data_swag(a.paths, a.n, a.classes, a.jitter);
     } else if (a.type == COMPARE_DATA){
