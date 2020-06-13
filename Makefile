@@ -2,6 +2,7 @@ GPU=1
 CUDNN=1
 CUDNN_HALF=1
 OPENCV=1
+NUMPY=1
 AVX=0
 OPENMP=0
 LIBSO=1
@@ -66,6 +67,12 @@ OPTS=-Ofast
 LDFLAGS= -lm -pthread
 COMMON= -Iinclude/ -I3rdparty/stb/include
 CFLAGS=-Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -fPIC
+
+# NUMPY part
+ifeq ($(NUMPY), 1)
+COMMON+= -DNUMPY -I/usr/include/python2.7/ -I/usr/lib/python2.7/dist-packages/numpy/core/include/numpy/
+CFLAGS+= -DNUMPY
+endif
 
 ifeq ($(DEBUG), 1)
 #OPTS= -O0 -g
