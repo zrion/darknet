@@ -947,7 +947,7 @@ float validate_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int t;
 
     const float thresh = .005;
-    const float nms = .45;
+    const float nms = .5;
     //const float iou_thresh = 0.5;
 
     int nthreads = 4;
